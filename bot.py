@@ -2,6 +2,11 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 from pymongo import MongoClient
 import config
+import logging
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # MongoDB setup
 client = MongoClient(config.MONGODB_URI)
@@ -11,8 +16,11 @@ files_collection = db['files']
 async def check_subscription(context, user_id, channel_id):
     try:
         member = await context.bot.get_chat_member(channel_id, user_id)
-        return member.status in ['member', 'administrator', 'creator']
-    except:
+        status = member.status
+        logger.info(f"User {user_id} status in {channel_id}: {status}")
+        return status in ['member', 'administrator', 'creator']
+    except Exception as e:
+        logger.error(f"Error checking subscription for user {user_id} in {channel_id}: {e}")
         return False
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
