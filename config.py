@@ -1,11 +1,16 @@
 import os
 
-BOT_TOKEN = os.getenv('BOT_TOKEN')  # From BotFather
-ADMIN_IDS = [123456789, 987654321]  # List of admin user IDs (get via @userinfobot)
+# Bot token from @BotFather – set as env var 'BOT_TOKEN'
+BOT_TOKEN = os.getenv('BOT_TOKEN')  # Replace with your real token if hardcoding for test: '8534241684:AAHnISl8xEXysSD26GBZZt0iTs2jX3OH4Zs'
 
-MAIN_CHANNEL_ID = -1001234567890  # Main channel ID (use @userinfobot or bot API)
-PRIVATE_CHANNEL_ID = -1000987654321  # Private channel ID
-DB_CHANNEL_ID = -1001122334455  # DB channel for files
-LOGGER_CHANNEL_ID = -1005566778899  # Logger channel
+# Admin user IDs (get via @userinfobot)
+ADMIN_IDS = [7078689012]  # Add more if needed, e.g., [7078689012, another_id]
 
-MONGODB_URI = os.getenv('MONGODB_URI')  # From MongoDB Atlas or Railway
+# Channel IDs (use @userinfobot or bot API to confirm)
+MAIN_CHANNEL_ID = -1003304827445  # Main channel for forced subscription
+PRIVATE_CHANNEL_ID = -1003645433914  # Private channel for forced subscription
+DB_CHANNEL_ID = -1003527164888  # DB channel for storing forwarded files
+LOGGER_CHANNEL_ID = -1003609332664  # Logger channel for user access logs
+
+# MongoDB URI from Atlas or Railway – set as env var 'MONGODB_URI'
+MONGODB_URI = os.getenv('MONGODB_URI')  # Replace with your real URI if hardcoding for test: 'mongodb+srv://sanjublogscom_db_user:Mahakal456@cluster0.cwi48dt.mongodb.net/?appName=Cluster0'
