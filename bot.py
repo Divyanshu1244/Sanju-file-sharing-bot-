@@ -1,5 +1,5 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 from pymongo import MongoClient
 import config
 
@@ -8,7 +8,7 @@ client = MongoClient(config.MONGODB_URI)
 db = client['file_bot']
 files_collection = db['files']
 
-async def start(update: Update, context):
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     # Check forced subscriptions
     if not await check_subscription(user.id, config.MAIN_CHANNEL_ID) or not await check_subscription(user.id, config.PRIVATE_CHANNEL_ID):
@@ -29,7 +29,7 @@ async def check_subscription(user_id, channel_id):
     except:
         return False
 
-async def check_sub_callback(update: Update, context):
+async def check_sub_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     user_id = query.from_user.id
     if await check_subscription(user_id, config.MAIN_CHANNEL_ID) and await check_subscription(user_id, config.PRIVATE_CHANNEL_ID):
@@ -37,7 +37,7 @@ async def check_sub_callback(update: Update, context):
     else:
         await query.answer("You haven't subscribed yet.")
 
-async def upload(update: Update, context):
+async def upload(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if user.id not in config.ADMIN_IDS:
         await update.message.reply_text("Admin only.")
@@ -54,7 +54,7 @@ async def upload(update: Update, context):
     files_collection.insert_one({'file_id': file_id, 'link': link})
     await update.message.reply_text(f"File uploaded. Share link: {link}")
 
-async def handle_file_link(update: Update, context):
+async def handle_file_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     args = context.args
     if not args or not args[0].startswith('file_'):
