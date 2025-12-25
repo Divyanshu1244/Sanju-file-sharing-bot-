@@ -8,13 +8,20 @@ client = MongoClient(config.MONGODB_URI)
 db = client['file_bot']
 files_collection = db['files']
 
+async def check_subscription(context, user_id, channel_id):
+    try:
+        member = await context.bot.get_chat_member(channel_id, user_id)
+        return member.status in ['member', 'administrator', 'creator']
+    except:
+        return False
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     # Check forced subscriptions
-    if not await check_subscription(user.id, config.MAIN_CHANNEL_ID) or not await check_subscription(user.id, config.PRIVATE_CHANNEL_ID):
+    if not await check_subscription(context, user.id, config.MAIN_CHANNEL_ID) or not await check_subscription(context, user.id, config.PRIVATE_CHANNEL_ID):
         keyboard = [
-            [InlineKeyboardButton("Subscribe to Main", url=f"https://t.me/c/{str(config.MAIN_CHANNEL_ID)[4:]}")],
-            [InlineKeyboardButton("Subscribe to Private", url=f"https://t.me/c/{str(config.PRIVATE_CHANNEL_ID)[4:]}")],
+            [InlineKeyboardButton("Subscribe to Main", url=f"https://t.me/{config.MAIN_CHANNEL_ID[1:]}")],  # Assumes @username
+            [InlineKeyboardButton("Subscribe to Private", url=f"https://t.me/{config.PRIVATE_CHANNEL_ID[1:]}")],  # Assumes @username
             [InlineKeyboardButton("Check Subscription", callback_data="check_sub")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -22,17 +29,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     await update.message.reply_text("Welcome! Use /upload to add files (admins only).")
 
-async def check_subscription(user_id, channel_id):
-    try:
-        member = await context.bot.get_chat_member(channel_id, user_id)
-        return member.status in ['member', 'administrator', 'creator']
-    except:
-        return False
-
 async def check_sub_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     user_id = query.from_user.id
-    if await check_subscription(user_id, config.MAIN_CHANNEL_ID) and await check_subscription(user_id, config.PRIVATE_CHANNEL_ID):
+    if await check_subscription(context, user_id, config.MAIN_CHANNEL_ID) and await check_subscription(context, user_id, config.PRIVATE_CHANNEL_ID):
         await query.edit_message_text("Subscription confirmed! You can now access files.")
     else:
         await query.answer("You haven't subscribed yet.")
@@ -61,7 +61,7 @@ async def handle_file_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     file_id = args[0][5:]
     # Check subs
-    if not await check_subscription(user.id, config.MAIN_CHANNEL_ID) or not await check_subscription(user.id, config.PRIVATE_CHANNEL_ID):
+    if not await check_subscription(context, user.id, config.MAIN_CHANNEL_ID) or not await check_subscription(context, user.id, config.PRIVATE_CHANNEL_ID):
         await update.message.reply_text("Subscribe first.")
         return
     # Log user
